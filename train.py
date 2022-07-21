@@ -54,7 +54,7 @@ class Trainer:
             bf16=True,
             # fp16=True,
             tpu_num_cores=8,
-            # push_to_hub=True,
+            push_to_hub=True,
             per_device_train_batch_size=32,
             per_device_eval_batch_size=32,
 
@@ -74,7 +74,7 @@ class Trainer:
             run_name=run_name,
             load_best_model_at_end=True,
             greater_is_better=False,
-            # report_to=['wandb'],
+            report_to=['wandb'],
             hub_model_id="enlm-r",
             hub_strategy='checkpoint',
             hub_token='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',
@@ -99,7 +99,7 @@ def main():
     trainer.train()
 
 
-os.environ["WANDB_DISABLED"] = "true"
+os.environ["WANDB_DISABLED"] = "false"
 
 if __name__ == '__main__':
     main()
