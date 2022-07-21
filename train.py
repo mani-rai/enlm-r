@@ -17,9 +17,9 @@ class Trainer:
         self.max_token = 512
 
     def load_datasets(self, tokenizer):
-        en_ds = load_dataset('text', data_files="data/cc100-10k.en", split='train').train_test_split(test_size=0.1,
+        en_ds = load_dataset('text', data_files="data/cc100-4gb.en", split='train').train_test_split(test_size=0.1,
                                                                                                      shuffle=False)
-        ne_ds = load_dataset('text', data_files="data/cc100-10k.ne", split='train').train_test_split(test_size=0.1,
+        ne_ds = load_dataset('text', data_files="data/cc100-4gb.ne", split='train').train_test_split(test_size=0.1,
                                                                                                      shuffle=False)
 
         en_train_ds = EnlmrLanguageSpecificDataset('English Train Dataset', en_ds['train'], tokenizer)
@@ -39,7 +39,7 @@ class Trainer:
         train_ds, valid_ds = self.load_datasets(tokenizer)
         data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer)
         config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
-                                  layer_norm_eps=1e-05, output_past=True, num_hidden_layers=1, num_attention_heads=1)
+                                  layer_norm_eps=1e-05, output_past=True)
         model = XLMRobertaForMaskedLM(config=config)
 
         run_name = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
