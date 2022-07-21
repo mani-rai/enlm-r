@@ -18,9 +18,9 @@ class Trainer:
 
     def load_datasets(self, tokenizer):
         en_ds = load_dataset('text', data_files="data/cc100-en-4gb.txt", split='train').train_test_split(test_size=0.1,
-                                                                                                     shuffle=False)
+                                                                                                         shuffle=False)
         ne_ds = load_dataset('text', data_files="data/cc100-ne-4gb.txt", split='train').train_test_split(test_size=0.1,
-                                                                                                     shuffle=False)
+                                                                                                         shuffle=False)
 
         en_train_ds = EnlmrLanguageSpecificDataset('English Train Dataset', en_ds['train'], tokenizer)
         en_valid_ds = EnlmrLanguageSpecificDataset('English Valid Dataset', en_ds['test'], tokenizer, is_valid=True)
@@ -46,18 +46,16 @@ class Trainer:
         training_args = TrainingArguments(
             output_dir="checkpoints",
             overwrite_output_dir=True,
-            warmup_steps=50,
-            max_steps=1000,
-            logging_steps=50,
-            save_steps=50,
-            # bf16=True,
-            fp16=True,
-            # tpu_num_cores=8,
-            # eval_steps=2,
-            # push_to_hub=True,
-            # include_inputs_for_metrics=True,
-            per_device_train_batch_size=self.batch_size,
-            per_device_eval_batch_size=self.batch_size,
+            warmup_steps=1000,
+            max_steps=10000,
+            logging_steps=1000,
+            save_steps=200,
+            bf16=True,
+            # fp16=True,
+            tpu_num_cores=8,
+            push_to_hub=True,
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
 
             adam_beta1=0.9,
             adam_beta2=0.98,
