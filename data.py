@@ -74,10 +74,12 @@ class EnlmrLanguageSpecificDataset(IterableDataset):
                         seq.append(self.tokenizer.convert_tokens_to_ids('</s>'))
                     eod = True
                 continue
-            eod = False
-            bos = False
             encodes = self.tokenizer.encode(sen, add_special_tokens=False)
             encodes.append(self.tokenizer.convert_tokens_to_ids('</s>'))
+            if len(encodes) + 1 > self.max_token:
+                continue
+            eod = False
+            bos = False
             if len(seq) + len(encodes) <= self.max_token:
                 seq = seq + encodes
             else:
@@ -143,7 +145,9 @@ class EnlmrCombinedDataset(IterableDataset):
 class ConvertedDataset:
 
     def __init__(self, dataset):
+        print("Converting dataset.")
         self.dataset = list(dataset)
+        print("Dataset converted.")
 
     def __getitem__(self, index):
         return self.dataset[index]
