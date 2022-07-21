@@ -13,13 +13,13 @@ from data import EnlmrCombinedDataset, EnlmrLanguageSpecificDataset, ConvertedDa
 class Trainer:
 
     def __init__(self):
-        self.batch_size = 8
+        self.batch_size = 256
         self.max_token = 512
 
     def load_datasets(self, tokenizer):
-        en_ds = load_dataset('text', data_files="data/cc100-4gb.en", split='train').train_test_split(test_size=0.1,
+        en_ds = load_dataset('text', data_files="data/cc100-en-4gb.txt", split='train').train_test_split(test_size=0.1,
                                                                                                      shuffle=False)
-        ne_ds = load_dataset('text', data_files="data/cc100-4gb.ne", split='train').train_test_split(test_size=0.1,
+        ne_ds = load_dataset('text', data_files="data/cc100-ne-4gb.txt", split='train').train_test_split(test_size=0.1,
                                                                                                      shuffle=False)
 
         en_train_ds = EnlmrLanguageSpecificDataset('English Train Dataset', en_ds['train'], tokenizer)
