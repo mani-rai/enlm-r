@@ -2,8 +2,7 @@ from datetime import datetime
 
 import transformers
 from datasets import load_dataset
-from transformers import XLMRobertaTokenizer, DataCollatorForLanguageModeling, XLMRobertaConfig, XLMRobertaForMaskedLM, \
-    TrainingArguments, SchedulerType, IntervalStrategy
+from transformers import XLMRobertaTokenizer, DataCollatorForLanguageModeling, XLMRobertaConfig, XLMRobertaForMaskedLM, TrainingArguments, SchedulerType, IntervalStrategy
 
 import wandb
 from data import EnlmrCombinedDataset, EnlmrLanguageSpecificDataset, ConvertedDataset
@@ -44,7 +43,7 @@ class Trainer:
         run_name = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         training_args = TrainingArguments(
             max_steps=50000,
-            # fp16=True,
+            fp16=True,
 
             output_dir="checkpoints",
             overwrite_output_dir=True,
@@ -53,18 +52,18 @@ class Trainer:
             logging_steps=10,
             eval_steps=50,
             save_steps=50,
-            tpu_num_cores=8,
+            # tpu_num_cores=8,
             adam_beta1=0.9,
             adam_beta2=0.98,
             adam_epsilon=1e-06,
             evaluation_strategy='steps',
             weight_decay=0.01,
             learning_rate=0.0006,
-            gradient_accumulation_steps=16,
-            eval_accumulation_steps=16,
-            push_to_hub=True,
-            per_device_train_batch_size=16,
-            per_device_eval_batch_size=16,
+            gradient_accumulation_steps=32,
+            eval_accumulation_steps=32,
+            # push_to_hub=True,
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
             lr_scheduler_type=SchedulerType.POLYNOMIAL,
             logging_dir='logs',
             logging_strategy=IntervalStrategy.STEPS,
@@ -88,11 +87,11 @@ class Trainer:
             tokenizer=tokenizer,
         )
 
-        trainer.train(resume_from_checkpoint="checkpoints/last-checkpoint")
+        trainer.train()
 
 
 def main():
-    wandb.init(project="enlm-r", id="3i7jxf5t", resume="must")
+    wandb.init(project="enlm-r")
     trainer = Trainer()
     trainer.train()
 
