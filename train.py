@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 
 import transformers
@@ -13,19 +12,19 @@ from data import EnlmrCombinedDataset, EnlmrLanguageSpecificDataset, ConvertedDa
 class Trainer:
 
     def __init__(self):
-        self.batch_size = 256
+        self.batch_size = 2048
         self.max_token = 512
 
     def load_datasets(self, tokenizer):
-        en_ds = load_dataset('text', data_files="data/cc100-en-4gb.txt", split='train').train_test_split(test_size=0.1,
-                                                                                                         shuffle=False)
-        ne_ds = load_dataset('text', data_files="data/cc100-ne-4gb.txt", split='train').train_test_split(test_size=0.1,
-                                                                                                         shuffle=False)
+        en_train_raw_ds = load_dataset('text', data_files="train.en", split='train')
+        ne_train_raw_ds = load_dataset('text', data_files="train.ne", split='train')
+        en_valid_raw_ds = load_dataset('text', data_files="valid.en", split='train')
+        ne_valid_raw_ds = load_dataset('text', data_files="valid.ne", split='train')
 
-        en_train_ds = EnlmrLanguageSpecificDataset('English Train Dataset', en_ds['train'], tokenizer)
-        en_valid_ds = EnlmrLanguageSpecificDataset('English Valid Dataset', en_ds['test'], tokenizer, is_valid=True)
-        ne_train_ds = EnlmrLanguageSpecificDataset('Nepali Train Dataset', ne_ds['train'], tokenizer)
-        ne_valid_ds = EnlmrLanguageSpecificDataset('Nepali Valid Dataset', ne_ds['test'], tokenizer, is_valid=True)
+        en_train_ds = EnlmrLanguageSpecificDataset('English Train Dataset', en_train_raw_ds, tokenizer)
+        en_valid_ds = EnlmrLanguageSpecificDataset('English Valid Dataset', en_valid_raw_ds, tokenizer, is_valid=True)
+        ne_train_ds = EnlmrLanguageSpecificDataset('Nepali Train Dataset', ne_train_raw_ds, tokenizer)
+        ne_valid_ds = EnlmrLanguageSpecificDataset('Nepali Valid Dataset', ne_valid_raw_ds, tokenizer, is_valid=True)
 
         train_ds = EnlmrCombinedDataset([en_train_ds, ne_train_ds], batch_size=self.batch_size)
         valid_ds = ConvertedDataset(EnlmrCombinedDataset([en_valid_ds, ne_valid_ds], batch_size=self.batch_size))
@@ -33,7 +32,7 @@ class Trainer:
         return train_ds, valid_ds
 
     def train(self):
-        tokenizer = XLMRobertaTokenizer('sentencepiece/enlm-r.spm.model',
+        tokenizer = XLMRobertaTokenizer('enlm-r.spm.model',
                                         sp_model_kwargs={'enable_sampling': True, 'nbest_size': 64, 'alpha': 0.1},
                                         model_max_length=self.max_token, name_or_path='enlm-r-base')
         train_ds, valid_ds = self.load_datasets(tokenizer)
@@ -44,36 +43,35 @@ class Trainer:
 
         run_name = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         training_args = TrainingArguments(
+            max_steps=50000,
+            # fp16=True,
+
             output_dir="checkpoints",
             overwrite_output_dir=True,
-            warmup_steps=1000,
-            max_steps=10000,
+            warmup_steps=10000,
+            optim='adamw_torch',
             logging_steps=10,
-            eval_steps=1000,
-            save_steps=4000,
-            bf16=True,
-            # fp16=True,
+            eval_steps=50,
+            save_steps=50,
             tpu_num_cores=8,
-            push_to_hub=True,
-            per_device_train_batch_size=32,
-            per_device_eval_batch_size=32,
-
             adam_beta1=0.9,
             adam_beta2=0.98,
             adam_epsilon=1e-06,
             evaluation_strategy='steps',
             weight_decay=0.01,
             learning_rate=0.0006,
+            gradient_accumulation_steps=8,
+            eval_accumulation_steps=8,
+            push_to_hub=True,
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
             lr_scheduler_type=SchedulerType.POLYNOMIAL,
-            log_level='info',
             logging_dir='logs',
             logging_strategy=IntervalStrategy.STEPS,
             save_strategy='steps',
-            save_total_limit=20,
+            save_total_limit=4,
             seed=1,
             run_name=run_name,
-            load_best_model_at_end=True,
-            greater_is_better=False,
             report_to=['wandb'],
             hub_model_id="enlm-r",
             hub_strategy='checkpoint',
@@ -90,15 +88,19 @@ class Trainer:
             tokenizer=tokenizer,
         )
 
-        trainer.train()
+        trainer.train(resume_from_checkpoint="checkpoints/last-checkpoint")
 
 
 def main():
-    wandb.init(project="enlm-r")
+    wandb.init(project="enlm-r", id="3i7jxf5t", resume="must")
     trainer = Trainer()
     trainer.train()
 
 
+import os
+
+os.environ['XLA_USE_BF16'] = "1"
+os.environ['XLA_TENSOR_ALLOCATOR_MAXSIZE'] = '100000000'
 os.environ["WANDB_DISABLED"] = "false"
 
 if __name__ == '__main__':

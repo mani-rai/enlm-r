@@ -5,11 +5,12 @@ import torch
 from datasets import load_dataset
 from tokenizers.implementations import ByteLevelBPETokenizer
 from torch.utils.data import IterableDataset
+from datetime import datetime
 
 
 class EnlmrLanguageSpecificDataset(IterableDataset):
 
-    def __init__(self, name, dataset, tokenizer, buffer_size=1000, max_token=512, is_valid=False):
+    def __init__(self, name, dataset, tokenizer, buffer_size=10000, max_token=512, is_valid=False):
         self.name = name
         self.setup_logging()
         self.dataset = dataset
@@ -145,9 +146,9 @@ class EnlmrCombinedDataset(IterableDataset):
 class ConvertedDataset:
 
     def __init__(self, dataset):
-        print("Converting dataset.")
+        print("Converting dataset.", datetime.now())
         self.dataset = list(dataset)
-        print("Dataset converted.")
+        print("Dataset converted.", datetime.now())
 
     def __getitem__(self, index):
         return self.dataset[index]
