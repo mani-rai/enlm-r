@@ -58,6 +58,7 @@ class EnlmrLanguageSpecificDataset(IterableDataset):
                     else:
                         seq = [self.tokenizer.convert_tokens_to_ids('<s>')]
                         self.dataset_iterator = iter(self.dataset)
+                        self.logger.info("Dataset ended.")
                         continue
                 else:
                     if self.is_valid:
