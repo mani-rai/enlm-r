@@ -18,9 +18,7 @@ if version.parse(torch.__version__) >= version.parse("1.6"):
 
 class Trainer(transformers.Trainer):
 
-    def __init__(self, train_batch_sampler, eval_batch_sampler, **kwargs):
-        self.train_batch_sampler = train_batch_sampler
-        self.eval_batch_sampler = eval_batch_sampler
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def get_train_dataloader(self) -> DataLoader:
