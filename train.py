@@ -7,6 +7,8 @@ from transformers import (
 
 from data import EnlmrDataset
 from trainer import Trainer
+import os
+import torch_xla.distributed.xla_multiprocessing as xmp
 
 max_token = 512
 batch_size = 32
@@ -103,4 +105,8 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
-    main()
+    os.environ["WANDB_DISABLED"] = "false"
+    os.environ['XLA_USE_BF16'] = '1'
+    os.environ['XLA_TENSOR_ALLOCATOR_MAXSIZE'] = '1000000000'
+    xmp.spawn(_mp_fn, args=(), nprocs=8, start_method='fork')
+    # main()
