@@ -1,4 +1,3 @@
-from random import choice
 from typing import List, Union, Iterable
 
 from math import ceil
@@ -18,11 +17,16 @@ class BatchSampler(Sampler[List[int]]):
     def __iter__(self):
         sampler_indexes = list(range(len(self.samplers)))
         sampler_iterators = [iter(sampler) for sampler in self.samplers]
+        sampler_indexes_idx = 0
         while True:
             if len(sampler_indexes) == 0:
                 return
             batch = []
-            sampler_index = choice(sampler_indexes)
+            if (sampler_indexes_idx + 1) < len(sampler_indexes):
+                sampler_indexes_idx += 1
+            else:
+                sampler_indexes_idx = 0
+            sampler_index = sampler_indexes[sampler_indexes_idx]
             sampler_iter = sampler_iterators[sampler_index]
             offset = 0 if sampler_index == 0 else self.cumulative_sizes[sampler_index - 1]
             while len(batch) < self.batch_size:
