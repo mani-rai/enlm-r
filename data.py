@@ -1,16 +1,36 @@
 import logging
+from datetime import datetime
 from random import choice
 
+import datasets
 import torch
-from datasets import load_dataset
-from tokenizers.implementations import ByteLevelBPETokenizer
-from torch.utils.data import IterableDataset
-from datetime import datetime
+from torch.utils.data import IterableDataset, Dataset
+
+
+class EnlmrDataset(Dataset):
+
+    def __init__(self, name, dataset: datasets.Dataset, max_token):
+        self.name = name
+        self.dataset = dataset
+        self.max_token = max_token
+
+    def __getitem__(self, idx):
+        raw_sample = self.dataset.__getitem__(idx)['text'].split()
+        tokenized_sample = list(map(int, raw_sample))
+        remaining = self.max_token - len(tokenized_sample)
+        if remaining == 0:
+            final_input = torch.IntTensor(tokenized_sample)
+        else:
+            final_input = torch.cat((torch.IntTensor(tokenized_sample), torch.ones(remaining, dtype=torch.int32)), 0)
+        return {'input_ids': final_input, 'attention_mask': torch.ones_like(final_input)}
+
+    def __len__(self):
+        return self.dataset.__len__()
 
 
 class EnlmrLanguageSpecificDataset(IterableDataset):
 
-    def __init__(self, name, dataset, tokenizer, buffer_size=10000, max_token=512, is_valid=False):
+    def __init__(self, name, dataset, tokenizer, buffer_size=2048, max_token=512, is_valid=False):
         self.name = name
         self.setup_logging()
         self.dataset = dataset
@@ -30,6 +50,7 @@ class EnlmrLanguageSpecificDataset(IterableDataset):
 
     def initialize_buffer(self):
         self.logger.info("Starting buffer initialization.")
+        print(datetime.now())
         while len(self.buffer) < self.buffer_size:
             sample = self.get_sample()
             if sample is None:
@@ -37,6 +58,7 @@ class EnlmrLanguageSpecificDataset(IterableDataset):
             if len(sample) > self.max_token:
                 continue
             self.buffer.append(sample)
+        print(datetime.now())
         self.logger.info("Buffer initialized.")
 
     def get_sample(self):
@@ -157,17 +179,10 @@ class ConvertedDataset:
     def __len__(self):
         return len(self.dataset)
 
-
-if __name__ == '__main__':
-    en_raw_ds = load_dataset('text', data_files="data/cc100-10k.en", split='train')
-    ne_raw_ds = load_dataset('text', data_files="data/cc100-10k.ne", split='train')
-
-    tokenizer = ByteLevelBPETokenizer('configs/enlm-r-vocab.json', 'configs/enlm-r-merges.txt')
-
-    en_ds = EnlmrLanguageSpecificDataset('en', en_raw_ds, tokenizer)
-    ne_ds = EnlmrLanguageSpecificDataset('ne', ne_raw_ds, tokenizer)
-
-    data = iter(EnlmrCombinedDataset([en_ds, ne_ds], tokenizer, 3))
-
-    for sample in data:
-        print(tokenizer.decode(sample.tolist()))
+# def main():
+#     en_train_raw_ds = load_dataset('text', data_files="train.en", split='train')
+#     en_preprocessed_train_ds = EnlmrDataset("English Train Dataset", en_train_raw_ds, 512)
+#
+#
+# if __name__ == '__main__':
+#     main()

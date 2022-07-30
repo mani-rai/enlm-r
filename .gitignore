@@ -2,3 +2,5 @@ checkpoints/
 logs/
 wandb/
 .idea/
+/nohup.out
+data/prod
