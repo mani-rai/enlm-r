@@ -13,14 +13,14 @@ import torch_xla.distributed.xla_multiprocessing as xmp
 max_token = 512
 batch_size = 8192
 num_of_devices = 8
-per_device_batch_size = 8
+per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
 num_train_epochs = 1
-logging_steps = 2
-save_steps = 4
-eval_steps = 4
-report_to = None
+logging_steps = 10
+save_steps = 40
+eval_steps = 160
+report_to = ["tensorboard"]
 push_to_hub = True
 resume_from_checkpoint = False
 
@@ -64,7 +64,6 @@ def main():
         save_total_limit=4,
         tpu_num_cores=8,
         eval_steps=eval_steps,
-        run_name="enlm-r",
         ignore_data_skip=True,
         optim="adamw_torch",
         report_to=report_to,
@@ -76,7 +75,7 @@ def main():
         hub_token='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',
     )
     config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
-                              layer_norm_eps=1e-05, output_past=True, num_hidden_layers=1, num_attention_heads=1)
+                              layer_norm_eps=1e-05, output_past=True)
     model = XLMRobertaForMaskedLM(config=config)
 
     # Data collator
@@ -98,12 +97,11 @@ def main():
 
 def _mp_fn(index):
     # For xla_spawn (TPUs)
+    os.environ['XLA_USE_BF16'] = '1'
+    os.environ['XLA_TENSOR_ALLOCATOR_MAXSIZE'] = '1000000000'
     main()
 
 
 if __name__ == "__main__":
-    os.environ["WANDB_DISABLED"] = "false"
-    os.environ['XLA_USE_BF16'] = '1'
-    os.environ['XLA_TENSOR_ALLOCATOR_MAXSIZE'] = '1000000000'
     xmp.spawn(_mp_fn, args=(), nprocs=8, start_method='fork')
     # main()
