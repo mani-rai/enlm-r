@@ -11,16 +11,14 @@ import os
 import torch_xla.distributed.xla_multiprocessing as xmp
 
 max_token = 512
-batch_size = 32
-num_of_devices = 1
-per_device_batch_size = 4
-data_dir = "data/test/processed"
+batch_size = 8192
+num_of_devices = 8
+per_device_batch_size = 8
+data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
 num_train_epochs = 1
 logging_steps = 2
 save_steps = 4
-bf16 = False
-fp16 = True
 eval_steps = 4
 report_to = None
 push_to_hub = True
@@ -64,8 +62,6 @@ def main():
         logging_steps=logging_steps,
         save_steps=save_steps,
         save_total_limit=4,
-        bf16=bf16,
-        fp16=fp16,
         tpu_num_cores=8,
         eval_steps=eval_steps,
         run_name="enlm-r",
