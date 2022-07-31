@@ -23,7 +23,8 @@ bf16 = False
 fp16 = True
 eval_steps = 4
 report_to = None
-push_to_hub = False
+push_to_hub = True
+resume_from_checkpoint = False
 
 
 def main():
@@ -96,7 +97,7 @@ def main():
         data_collator=data_collator,
     )
 
-    trainer.train()
+    trainer.train(resume_from_checkpoint=resume_from_checkpoint)
 
 
 def _mp_fn(index):
