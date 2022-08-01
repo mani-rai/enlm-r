@@ -16,13 +16,13 @@ num_of_devices = 8
 per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
-num_train_epochs = 1
+num_train_epochs = 2
 logging_steps = 10
 save_steps = 40
 eval_steps = 160
 report_to = ["tensorboard"]
 push_to_hub = True
-resume_from_checkpoint = False
+resume_from_checkpoint = True
 
 
 def main():

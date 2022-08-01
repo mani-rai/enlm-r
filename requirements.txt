@@ -1,5 +1,4 @@
 transformers==4.20.1
-wandb==0.12.21
 datasets==2.3.2
 huggingface_hub==0.8.1
 gdown==4.5.1
