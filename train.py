@@ -16,9 +16,9 @@ num_of_devices = 8
 per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
-num_train_epochs = 2
+num_train_epochs = 4
 logging_steps = 10
-save_steps = 40
+save_steps = 97
 eval_steps = 160
 report_to = ["tensorboard"]
 push_to_hub = True
@@ -58,10 +58,9 @@ def main():
         num_train_epochs=num_train_epochs,
         lr_scheduler_type=SchedulerType.POLYNOMIAL,
         warmup_steps=24000,
-        log_level="info",
         logging_steps=logging_steps,
         save_steps=save_steps,
-        save_total_limit=4,
+        save_total_limit=2,
         tpu_num_cores=8,
         eval_steps=eval_steps,
         ignore_data_skip=True,
@@ -71,7 +70,7 @@ def main():
         ddp_bucket_cap_mb=25,
         push_to_hub=push_to_hub,
         hub_model_id="enlm-r",
-        hub_strategy="checkpoint",
+        hub_strategy="all_checkpoints",
         hub_token='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',
     )
     config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
