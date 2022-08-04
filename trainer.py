@@ -27,7 +27,7 @@ class Trainer(transformers.Trainer):
 
         train_samplers = self._get_train_samplers()
         batch_sampler = BatchSampler(train_samplers, self.train_dataset.cumulative_sizes,
-                                     self.args.per_device_train_batch_size)
+                                     self.args.per_device_train_batch_size, self.args.gradient_accumulation_steps)
 
         return DataLoader(
             self.train_dataset,
@@ -102,7 +102,7 @@ class Trainer(transformers.Trainer):
 
         eval_samplers = self._get_eval_samplers(eval_dataset)
         batch_sampler = BatchSampler(eval_samplers, self.eval_dataset.cumulative_sizes,
-                                     self.args.per_device_eval_batch_size)
+                                     self.args.per_device_eval_batch_size, self.args.gradient_accumulation_steps)
 
         return DataLoader(
             eval_dataset,
