@@ -16,7 +16,7 @@ num_of_devices = 8
 per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
-num_train_epochs = 4
+num_train_epochs = 11
 logging_steps = 10
 save_steps = 97
 eval_steps = 160
@@ -72,6 +72,7 @@ def main():
         hub_model_id="enlm-r",
         hub_strategy="all_checkpoints",
         hub_token='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',
+        skip_memory_metrics=False
     )
     config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
                               layer_norm_eps=1e-05, output_past=True)
@@ -91,7 +92,17 @@ def main():
         data_collator=data_collator,
     )
 
-    trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+    train_result = trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+    trainer.save_model()
+    metrics = train_result.metrics
+    metrics["train_samples"] = len(train_ds)
+    trainer.log_metrics("train", metrics)
+    trainer.save_metrics("train", metrics)
+    trainer.save_state()
+
+    if training_args.push_to_hub:
+        commit_message = f"Training in progress, step {trainer.state.global_step}"
+        trainer.push_to_hub(commit_message=commit_message)
 
 
 def _mp_fn(index):
