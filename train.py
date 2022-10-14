@@ -8,15 +8,15 @@ from transformers import (
 from data import EnlmrDataset
 from trainer import Trainer
 import os
-import torch_xla.distributed.xla_multiprocessing as xmp
+# import torch_xla.distributed.xla_multiprocessing as xmp
 
 max_token = 512
 batch_size = 8192
-num_of_devices = 8
+num_of_devices = 4
 per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
-num_train_epochs = 11
+num_train_epochs = 60
 logging_steps = 10
 save_steps = 97
 eval_steps = 160
@@ -113,5 +113,5 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
-    xmp.spawn(_mp_fn, args=(), nprocs=8, start_method='fork')
-    # main()
+    # xmp.spawn(_mp_fn, args=(), nprocs=8, start_method='fork')
+    main()

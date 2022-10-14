@@ -1,6 +1,9 @@
 checkpoints/
 logs/
 wandb/
-.idea/
+.idea
 /nohup.out
 data/prod
+outputs
+nohup.out
+__pycache__

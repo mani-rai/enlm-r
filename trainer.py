@@ -5,6 +5,7 @@ import transformers
 from packaging import version
 from torch.utils.data import DataLoader, Dataset, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
+from transformers import get_polynomial_decay_schedule_with_warmup
 from transformers.trainer_pt_utils import DistributedSamplerWithLoop
 from transformers.trainer_utils import seed_worker, has_length
 from transformers.training_args import ParallelMode
@@ -165,3 +166,13 @@ class Trainer(transformers.Trainer):
                     )
                 )
             return samplers
+
+    def create_scheduler(self, num_training_steps: int, optimizer: torch.optim.Optimizer = None):
+        print("Running custom scheduler...")
+        if self.lr_scheduler is None:
+            self.lr_scheduler = get_polynomial_decay_schedule_with_warmup(
+                optimizer=self.optimizer if optimizer is None else optimizer,
+                num_warmup_steps=self.args.get_warmup_steps(num_training_steps),
+                num_training_steps=num_training_steps
+            )
+        return self.lr_scheduler
