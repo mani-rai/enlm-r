@@ -22,7 +22,7 @@ save_steps = 97
 eval_steps = 160
 report_to = ["tensorboard"]
 push_to_hub = True
-resume_from_checkpoint = False
+resume_from_checkpoint = True
 
 
 def main():
@@ -41,7 +41,7 @@ def main():
     # Setting up the model
     tokenizer = XLMRobertaTokenizer('sentencepiece/enlm-r.spm.model',
                                     sp_model_kwargs={'enable_sampling': False, 'nbest_size': 0, 'alpha': 0.1},
-                                    model_max_length=max_token, name_or_path='enlm-r-base')
+                                    model_max_length=max_token, name_or_path='enlm-roberta')
     training_args = TrainingArguments(
         output_dir="outputs",
         overwrite_output_dir=True,
@@ -70,7 +70,7 @@ def main():
         ddp_bucket_cap_mb=25,
         push_to_hub=push_to_hub,
         hub_model_id="enlm-r-final",
-        hub_strategy="all_checkpoints",
+        hub_strategy="end",
         hub_token='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',
         skip_memory_metrics=False
     )
