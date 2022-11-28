@@ -16,7 +16,7 @@ num_of_devices = 4
 per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
-num_train_epochs = 20
+num_train_epochs = 10
 logging_steps = 10
 save_steps = 97
 eval_steps = 160
@@ -50,17 +50,17 @@ def main():
         per_device_train_batch_size=per_device_batch_size,
         per_device_eval_batch_size=per_device_batch_size,
         gradient_accumulation_steps=gradient_accumulation_steps,
-        learning_rate=0.0006,
+        learning_rate=0.00006,
         weight_decay=0.01,
         adam_beta1=0.9,
         adam_beta2=0.98,
         adam_epsilon=1e-06,
         num_train_epochs=num_train_epochs,
         lr_scheduler_type=SchedulerType.POLYNOMIAL,
-        warmup_steps=1000,
+        warmup_ratio=0.0,
         logging_steps=logging_steps,
         save_steps=save_steps,
-        save_total_limit=2,
+        save_total_limit=3,
         tpu_num_cores=8,
         eval_steps=eval_steps,
         ignore_data_skip=True,
@@ -69,7 +69,7 @@ def main():
         ddp_find_unused_parameters=False,
         ddp_bucket_cap_mb=25,
         push_to_hub=push_to_hub,
-        hub_model_id="enlm-r-final",
+        hub_model_id="enlm-roberta",
         hub_strategy="end",
         hub_token='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',
         skip_memory_metrics=False
@@ -77,7 +77,7 @@ def main():
     config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
                               layer_norm_eps=1e-05, output_past=True)
     # model = XLMRobertaForMaskedLM(config=config)
-    model = AutoModelForMaskedLM.from_pretrained('manirai91/enlm-r');
+    model = AutoModelForMaskedLM.from_pretrained('manirai91/enlm-roberta');
 
     # Data collator
     # This one will take care of randomly masking the tokens.
