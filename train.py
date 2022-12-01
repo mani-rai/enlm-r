@@ -72,7 +72,10 @@ def main():
         hub_model_id="enlm-roberta-130",
         hub_strategy="end",
         hub_token='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',
-        skip_memory_metrics=False
+        skip_memory_metrics=False,
+        load_best_model_at_end=True,
+        metric_for_best_model="loss",
+        greater_is_better=False
     )
     config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
                               layer_norm_eps=1e-05, output_past=True)
