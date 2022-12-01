@@ -16,13 +16,13 @@ num_of_devices = 4
 per_device_batch_size = 16
 data_dir = "data"
 gradient_accumulation_steps = batch_size // (per_device_batch_size * num_of_devices)
-num_train_epochs = 10
+num_train_epochs = 20
 logging_steps = 10
 save_steps = 97
 eval_steps = 160
 report_to = ["tensorboard"]
 push_to_hub = True
-resume_from_checkpoint = True
+resume_from_checkpoint = False
 
 
 def main():
@@ -69,7 +69,7 @@ def main():
         ddp_find_unused_parameters=False,
         ddp_bucket_cap_mb=25,
         push_to_hub=push_to_hub,
-        hub_model_id="enlm-roberta",
+        hub_model_id="enlm-roberta-130",
         hub_strategy="end",
         hub_token='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',
         skip_memory_metrics=False
@@ -77,7 +77,7 @@ def main():
     config = XLMRobertaConfig(vocab_size=tokenizer.vocab_size, max_position_embeddings=514, type_vocab_size=1,
                               layer_norm_eps=1e-05, output_past=True)
     # model = XLMRobertaForMaskedLM(config=config)
-    model = AutoModelForMaskedLM.from_pretrained('manirai91/enlm-roberta');
+    model = AutoModelForMaskedLM.from_pretrained('manirai91/enlm-roberta-final');
 
     # Data collator
     # This one will take care of randomly masking the tokens.
