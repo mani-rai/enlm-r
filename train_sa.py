@@ -16,12 +16,10 @@ raw_test_ds = datasets.load_dataset("manirai91/yt-nepali-movie-reviews", split="
 
 # tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-cased")
 # tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
-tokenizer = AutoTokenizer.from_pretrained("manirai91/enlm-roberta-final")
-
+tokenizer = AutoTokenizer.from_pretrained("manirai91/enlm-roberta-130")
 
 def tokenize(samples):
     return tokenizer(samples["text"], truncation=True, max_length=max_tokens)
-
 
 tokenized_train_ds = raw_train_ds.map(tokenize, batched=True)
 tokenized_valid_ds = raw_valid_ds.map(tokenize, batched=True)
@@ -30,16 +28,14 @@ tokenized_test_ds = raw_test_ds.map(tokenize, batched=True)
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer, padding='max_length', max_length=max_tokens)
 # model = AutoModelForSequenceClassification.from_pretrained("bert-base-multilingual-cased", num_labels=2)
 # model = AutoModelForSequenceClassification.from_pretrained("xlm-roberta-base", num_labels=2)
-model = AutoModelForSequenceClassification.from_pretrained("manirai91/enlm-roberta-final", num_labels=2)
+model = AutoModelForSequenceClassification.from_pretrained("manirai91/enlm-roberta-130", num_labels=2)
 
 metric = load_metric("accuracy")
-
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
     return metric.compute(predictions=predictions, references=labels)
-
 
 epochs = 10
 learning_rate = 1e-5
@@ -74,7 +70,7 @@ training_args = TrainingArguments(
     report_to=report_to,
     push_to_hub=push_to_hub,
     resume_from_checkpoint=resume_from_checkpoint,
-    hub_model_id="enlm-roberta-imdb-final",
+    hub_model_id="enlm-roberta-130-imdb",
     hub_strategy="end",
     hub_token="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",
     do_train=True,

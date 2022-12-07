@@ -16,7 +16,7 @@ raw_test_ds = datasets.load_dataset("manirai91/ebiquity-v2", split="train")
 max_tokens = 512
 # tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-cased")
 # tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
-tokenizer = AutoTokenizer.from_pretrained("manirai91/enlm-roberta-final")
+tokenizer = AutoTokenizer.from_pretrained("manirai91/enlm-roberta-130")
 
 # Preprocessing
 def preprocess(samples):
@@ -67,7 +67,7 @@ def compute_metrics(eval_pred):
 # Load model and tokenizer
 # model = AutoModelForTokenClassification.from_pretrained("bert-base-multilingual-cased", num_labels=9)
 # model = AutoModelForTokenClassification.from_pretrained("xlm-roberta-base", num_labels=9)
-model = AutoModelForTokenClassification.from_pretrained("manirai91/enlm-roberta-final", num_labels=9)
+model = AutoModelForTokenClassification.from_pretrained("manirai91/enlm-roberta-130", num_labels=9)
 
 # Defining data collator
 data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer, padding='max_length', max_length=max_tokens)
@@ -105,7 +105,7 @@ training_args = TrainingArguments(
     report_to=report_to,
     push_to_hub=push_to_hub,
     resume_from_checkpoint=resume_from_checkpoint,
-    hub_model_id="enlm-roberta-conll2003-final",
+    hub_model_id="enlm-roberta-130-conll2003",
     hub_strategy="end",
     hub_token="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",
     do_train=True,
